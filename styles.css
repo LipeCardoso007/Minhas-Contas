@@ -96,6 +96,7 @@ body {
   background: radial-gradient(circle at 15% 10%, #1b1b1b, var(--paper) 50%, #050505);
   min-height: 100vh;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body[data-mode="light"] {
