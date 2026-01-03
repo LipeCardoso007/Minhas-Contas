@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minhas Contas 2026</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="hero">
+      <div class="brand">
+        <p class="kicker">Controle de gastos 2026</p>
+        <h1>Minhas Contas</h1>
+        <p class="subtitle">
+          Organize suas contas mensais e acompanhe parcelas futuras em um ano
+          inteiro.
+        </p>
+        <div class="hero-actions">
+          <button class="cta" id="abrirModal">Adicionar conta</button>
+          <button class="ghost" id="abrirCategoria">Adicionar categoria</button>
+          <button class="ghost" id="verCategorias">Ver categorias</button>
+          <button class="ghost" id="abrirSalario">Inserir salario</button>
+          <button class="ghost" id="abrirTema">Temas</button>
+        </div>
+      </div>
+      <div class="hero-card">
+        <p class="hero-label">Total estimado em 2026</p>
+        <p class="hero-total" id="totalAno">R$ 0,00</p>
+        <p class="hero-hint">Somatorio de todas as parcelas do ano.</p>
+        <div class="hero-fixed">
+          <span>Fixos por mes</span>
+          <strong id="totalFixosMes">R$ 0,00</strong>
+        </div>
+        <div class="hero-salary">
+          <span>Salario do mes</span>
+          <strong id="salarioMes">R$ 0,00</strong>
+        </div>
+        <div class="hero-balance">
+          <span>Saldo do mes</span>
+          <strong id="saldoMes">R$ 0,00</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel wide">
+        <div class="section-head">
+          <h2>Gastos mensais de 2026</h2>
+          <div class="actions">
+            <button class="ghost" id="limparTudo">Limpar tudo</button>
+            <button class="ghost" id="salvarBackup">Salvar backup</button>
+            <button class="ghost" id="restaurarBackup">Restaurar backup</button>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-card">
+            <h3>Gastos por categoria</h3>
+            <div class="chart-row">
+              <div class="chart-canvas">
+                <canvas id="graficoPizza" width="240" height="240"></canvas>
+                <div class="chart-tooltip" id="graficoTooltip"></div>
+              </div>
+              <div class="chart-legend" id="graficoLegenda"></div>
+            </div>
+          </div>
+        </div>
+        <div class="meses" id="meses"></div>
+      </section>
+    </main>
+
+    <div class="toast" id="toastAviso" role="status" aria-live="polite"></div>
+
+    <div class="modal" id="modalConta" aria-hidden="true">
+      <div class="modal-backdrop" data-fechar="true"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+        <div class="modal-head">
+          <h2 id="tituloModal">Adicionar conta</h2>
+          <button class="ghost" id="fecharModal">Fechar</button>
+        </div>
+        <form id="contaForm">
+          <label>
+            Nome da conta
+            <input type="text" id="nome" placeholder="Ex: Internet" required />
+          </label>
+          <label>
+            Valor da parcela
+            <input type="text" id="valorParcela" inputmode="decimal" placeholder="0,00" required />
+          </label>
+          <label>
+            Valor total (calculado)
+            <input type="text" id="valorTotal" inputmode="decimal" placeholder="0,00" readonly />
+          </label>
+          <label>
+            Mes inicial
+            <select id="mesInicial"></select>
+          </label>
+          <label>
+            Numero de parcelas
+            <input type="number" id="parcelas" min="1" step="1" value="1" required />
+          </label>
+          <label>
+            Categoria
+            <select id="categoriaSelect"></select>
+          </label>
+          <label>
+            Nova categoria (opcional)
+            <input type="text" id="categoriaNova" placeholder="Ex: Casa" />
+          </label>
+          <label class="checkline">
+            <input type="checkbox" id="fixo" />
+            Conta fixa (todo mes)
+          </label>
+          <button type="submit">Salvar conta</button>
+        </form>
+        <div class="form-note">
+          As parcelas sao distribuidas a partir do mes inicial, apenas dentro de
+          2026.
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="modalSalario" aria-hidden="true">
+      <div class="modal-backdrop" data-fechar-salario="true"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tituloSalario">
+        <div class="modal-head">
+          <h2 id="tituloSalario">Inserir salario</h2>
+          <button class="ghost" id="fecharSalario">Fechar</button>
+        </div>
+        <form id="salarioForm">
+          <label>
+            Salario mensal
+            <input type="text" id="salarioInput" inputmode="decimal" placeholder="0,00" required />
+          </label>
+          <button type="submit">Salvar salario</button>
+        </form>
+        <div class="form-note">Valor usado para calcular o saldo do mes atual.</div>
+      </div>
+    </div>
+
+    <div class="modal" id="modalCategorias" aria-hidden="true">
+      <div class="modal-backdrop" data-fechar-categoria="true"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tituloCategorias">
+        <div class="modal-head">
+          <h2 id="tituloCategorias">Categorias</h2>
+          <button class="ghost" id="fecharCategorias">Fechar</button>
+        </div>
+        <form id="categoriaForm">
+          <label>
+            Nova categoria
+            <input type="text" id="categoriaNome" placeholder="Ex: Saude" required />
+          </label>
+          <button type="submit">Adicionar categoria</button>
+        </form>
+        <div class="form-note">Edite ou exclua categorias existentes.</div>
+        <div class="categoria-lista" id="listaCategorias"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="modalTema" aria-hidden="true">
+      <div class="modal-backdrop" data-fechar-tema="true"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tituloTema">
+        <div class="modal-head">
+          <h2 id="tituloTema">Temas</h2>
+          <button class="ghost" id="fecharTema">Fechar</button>
+        </div>
+        <div class="theme-section">
+          <p class="theme-label">Modo</p>
+          <div class="theme-grid" id="temaModo">
+            <button class="theme-option" data-mode="dark" type="button">Escuro</button>
+            <button class="theme-option" data-mode="light" type="button">Claro</button>
+          </div>
+        </div>
+        <div class="theme-section">
+          <p class="theme-label">Cores</p>
+          <div class="theme-grid" id="temaCor">
+            <button class="theme-option" data-accent="green" type="button">Verde</button>
+            <button class="theme-option" data-accent="blue" type="button">Azul</button>
+            <button class="theme-option" data-accent="orange" type="button">Laranja</button>
+            <button class="theme-option" data-accent="red" type="button">Vermelho</button>
+          </div>
+        </div>
+        <div class="form-note">A preferencia fica salva no seu navegador.</div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      Dados salvos no navegador. Atualize a qualquer momento.
+    </footer>
+
+    <input type="file" id="backupInput" accept="application/json" hidden />
+
+    <script src="app.js"></script>
+  </body>
+</html>
